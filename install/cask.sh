@@ -11,25 +11,29 @@ apps=(
   android-file-transfer
   bettertouchtool
   atom
+  cyberduck
   dash
   firefox
   flux
+  gasmask
+  gitkraken
   glimmerblocker
   google-chrome
   google-drive
   imageoptim
   iterm2
+  java
   jumpcut
   kindle
+  mamp
   macdown
+  mucommander
+  nextcloud
   opera
   osxfuse
-  owncloud
   p4merge
-  qbittorrent
   sequel-pro
   slack
-  skyfonts
   sourcetree
   synergy
   textual
@@ -38,7 +42,6 @@ apps=(
   veracrypt
   virtualbox
   vlc
-  vmware-fusion
 )
 
 brew cask install "${apps[@]}"

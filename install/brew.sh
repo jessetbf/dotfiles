@@ -2,15 +2,19 @@
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 brew tap homebrew/versions
 brew tap homebrew/dupes
+brew tap homebrew/php
 brew update
 brew upgrade
 
 # Install packages
 apps=(
   ansible
+  composer
   coreutils
   cmake
+  diff-so-fancy
   dockutil
+  drush
   ffmpeg
   git
   gnu-sed --with-default-names
@@ -25,6 +29,7 @@ apps=(
   peco
   psgrep
   python
+  php71
   shellcheck
   ssh-copy-id
   svn
@@ -35,3 +40,5 @@ apps=(
 )
 
 brew install "${apps[@]}"
+
+brew services start homebrew/php/php71

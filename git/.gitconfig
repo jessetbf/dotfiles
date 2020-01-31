@@ -1,13 +1,13 @@
 [user]
-  name = Jesse Taylor
-  email = topplestack@gmail.com
+	name = Jesse
+	email = jesset@bestfriends.org
 
 [github]
-  user = topplestack
+  user = jessetbf
 
 [core]
-  excludesfile = ~/.gitignore_global
-  editor = vim
+	excludesfile = /Users/jesset/.gitignore_global
+  editor = atom
   filemode = false
   trustctime = false
   autocrlf = input
@@ -59,7 +59,8 @@
   newHighlight = "green bold 22"
 
 [credential]
-  helper = osxkeychain
+  helper = !aws codecommit credential-helper $@
+  UseHttpPath = true
 
 [grep]
   lineNumber = true
@@ -86,7 +87,7 @@
 [difftool "Kaleidoscope"]
   cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
 [difftool "sourcetree"]
-	cmd = /usr/local/bin/ksdiff -w \"$LOCAL\" \"$REMOTE\"
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path =
 [difftool "p4merge"]
 	cmd = /Applications/p4merge.app/Contents/Resources/launchp4merge "\"$REMOTE\"" "\"$LOCAL\""
@@ -100,10 +101,15 @@
   cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
   trustExitCode = true
 [mergetool "sourcetree"]
-	cmd = /usr/local/bin/ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
 [mergetool "p4merge"]
 	cmd = /Applications/p4merge.app/Contents/Resources/launchp4merge "\"$PWD/$BASE\"" "\"$PWD/$REMOTE\"" "\"$PWD/$LOCAL\"" "\"$PWD/$MERGED\""
 	keepTemporaries = false
 	trustExitCode = false
 	keepBackup = false
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

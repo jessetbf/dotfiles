@@ -5,3 +5,6 @@
 node_modules
 bower_components
 npm-debug.log
+settings-local.php
+*.sql
+*.sql.gz
