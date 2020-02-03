@@ -8,10 +8,12 @@ nvm alias default 5
 
 packages=(
   diff-so-fancy
+  gatsby-cli
   grunt
   gulp
   http-server
   nodemon
+  react
   release-it
   spot
   svgo

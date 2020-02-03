@@ -32,7 +32,6 @@ apps=(
   php71
   shellcheck
   ssh-copy-id
-  svn
   tree
   vim
   wget
