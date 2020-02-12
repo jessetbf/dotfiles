@@ -1,10 +1,4 @@
 # Install Homebrew
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-brew tap homebrew/versions
-brew tap homebrew/dupes
-brew tap homebrew/php
-brew update
-brew upgrade
 
 # Install packages
 apps=(
@@ -14,22 +8,22 @@ apps=(
   cmake
   diff-so-fancy
   dockutil
-  drush
   ffmpeg
   git
-  gnu-sed --with-default-names
-  grep --with-default-names
+  gnu-sed
+  grep
   hub
   httpie
   imagemagick
   jq
   mackup
+  mysql
   node
   ntfs-3g
   peco
   psgrep
   python
-  php71
+  php@7.3
   shellcheck
   ssh-copy-id
   tree
@@ -39,5 +33,3 @@ apps=(
 )
 
 brew install "${apps[@]}"
-
-brew services start homebrew/php/php71

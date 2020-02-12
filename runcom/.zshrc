@@ -1,5 +1,5 @@
 source $(brew --prefix nvm)/nvm.sh
-source /usr/local/share/antigen/antigen.zsh
+source ~/.dotfiles/antigen.zsh
 
 # Load the oh-my-zsh's library
 antigen use oh-my-zsh
@@ -33,7 +33,7 @@ antigen theme avit
 antigen apply
 
 source "${HOME}/.aliases"
-
+source "${HOME}/.bash_profile"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"

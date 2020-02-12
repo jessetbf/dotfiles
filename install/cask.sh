@@ -1,8 +1,6 @@
 # Install Caskroom
 
-brew tap caskroom/cask
 brew install cask
-brew tap caskroom/versions
 
 # Install packages
 
@@ -13,22 +11,22 @@ apps=(
   atom
   cyberduck
   dash
+  dropbox
   firefox
   flux
-  gasmask
+  gas-mask
   gitkraken
   glimmerblocker
-  google-chrome
-  google-drive
   imageoptim
   iterm2
   java
   jumpcut
+  karabiner-elements
   mamp
+  mysqlworkbench
   mucommander
   nextcloud
   osxfuse
-  p4merge
   sequel-pro
   slack
   synergy
@@ -36,6 +34,7 @@ apps=(
   vagrant
   veracrypt
   virtualbox
+  visual-studio-code
   vlc
 )
 
