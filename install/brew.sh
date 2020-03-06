@@ -10,6 +10,7 @@ apps=(
   dockutil
   ffmpeg
   git
+  git-flow-avh
   gnu-sed
   grep
   hub

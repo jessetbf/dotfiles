@@ -29,6 +29,7 @@ apps=(
   osxfuse
   sequel-pro
   slack
+  spectrum
   synergy
   textual
   vagrant
