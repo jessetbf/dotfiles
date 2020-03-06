@@ -18,13 +18,11 @@ apps=(
   imagemagick
   jq
   mackup
-  mysql
   node
   ntfs-3g
   peco
   psgrep
   python
-  php@7.3
   shellcheck
   ssh-copy-id
   tree
