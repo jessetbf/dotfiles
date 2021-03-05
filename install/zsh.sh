@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Install zsh config
 apps=(
   zsh

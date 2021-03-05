@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Install mas-cli https://github.com/mas-cli/mas
 brew install mas
 

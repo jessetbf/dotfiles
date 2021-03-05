@@ -1,3 +1,6 @@
+
+#!/usr/bin/env bash
+
 # Install Caskroom
 
 brew install cask

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 brew install nvm
 
 # Globally install with npm
