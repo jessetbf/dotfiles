@@ -1,0 +1,16 @@
+# clear old aws creds
+sed -i '' d ~/.aws/credentials
+
+#get new creds
+gimme-aws-creds
+
+#rename roles
+sed -i '' 's/bfas-developer-role-acct-OKTA_AppServices/default/g' ~/.aws/credentials
+sed -i '' 's/AWS_WebDeveloper/eb-cli/g' ~/.aws/credentials
+sed -i '' 's/bfas-developer-tools-role-acct-OKTA_AppServices/tools/g' ~/.aws/credentials
+sed -i '' 's/bfas-publicprd-role-acct-OKTA_AppServices/prod/g' ~/.aws/credentials
+sed -i '' 's/bfas-publicqa-role-acct-OKTA_AppServices/qa/g' ~/.aws/credentials
+sed -i '' 's/BFAS-Sandbox-Standard/sand/g' ~/.aws/credentials
+
+# Copy web to eb-cli
+# sed -n "/\[web\]/{n;p;}" ~/.aws/credentials

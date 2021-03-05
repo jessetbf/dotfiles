@@ -16,8 +16,6 @@ apps=(
   flux
   gas-mask
   gitkraken
-  glimmerblocker
-  imageoptim
   iterm2
   java
   jumpcut
@@ -36,7 +34,6 @@ apps=(
   veracrypt
   virtualbox
   visual-studio-code
-  vlc
 )
 
 brew cask install "${apps[@]}"

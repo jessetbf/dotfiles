@@ -1,0 +1,251 @@
+#!/bin/bash
+#################################################################################
+# WEB Get Database SCRIPT
+#
+# Takes a mysql web database as a parameter.
+# Runs mysqldump with certain parameters and backs up the database to S3
+# File is saved to /tmp by default.
+#
+# History:
+#   27 Jul 2020 Karl Ruetz
+#       Copied code from WebDBBackup.
+#       Added code to determine hostname and secrets name based on dbname.
+#       Updated usage message.
+#       Removed copy to S3
+#
+#Example for NKLA:
+#./WebGetDB -d "nkla92" \
+#   -p "eb-cli" -b "dev"
+#   -o /tmp
+#################################################################################
+# Use the file name as the application name.
+appName=`basename "$0"`
+# Create usage message
+usage="Usage: ${appName}  [-h|--help] (Returns usage)
+                    -d|--backupDB <backupDB> (Database to be backed up)
+                    -p|--profile <profile> (AWS profile for DB Account)
+                    -b|--s3Profile <profile> (AWS profile for S3 bucket location)
+                    -o|--outputDir <path> (Local directory for backup file)"
+
+EXEC_PATH="`dirname \"$0\"`"
+source ${EXEC_PATH}/logger.sh
+
+VERBOSE=0
+export LOG_LEVEL="INFO"
+
+#################################################################################
+# Trap Control-C Function
+#################################################################################
+function log_ctrlc() {
+    logThis "Control-C detected." INFO
+    exit 3
+}
+trap log_ctrlc SIGINT
+
+#################################################################################
+# Script main body
+#################################################################################
+logThis "${appName} processing begins." INFO
+# Parse command line arguments
+# Make sure there is at least one argument
+if [ $# -lt 1 ]; then
+    echo "${appName} requires at least one argument."
+    echo "${usage}."
+    exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+    case ${1} in
+        -d|--backupDB ) # process option for database name
+            shift # past switch
+            backupDB=$1
+            logThis "backupDB: ${backupDB}" DEBUG
+            shift # past argument
+        ;;
+        -p|--profile ) # process option for profile
+            shift # past switch
+            profile=$1
+            logThis "profile: ${profile}" DEBUG
+            shift # past argument
+        ;;
+        -b|--s3Profile ) # process option for s3 profile
+            shift # past switch
+            s3Profile=$1
+            logThis "s3Profile: ${s3Profile}" DEBUG
+            shift # past argument
+        ;;
+         -o|--outputDir ) # process option for output directory
+            shift # past switch
+            outputDir=$1
+            logThis "outputDir: ${outputDir}" DEBUG
+            shift # past argument
+        ;;
+        -v|--verbose) # process option for verbose mode
+            shift # past switch
+            export VERBOSE=1
+            logThis "Verbose mode on." DEBUG
+            shift # past argument
+        ;;
+        -h|--help ) # show usage
+            echo "$usage"
+            exit 0
+        ;;
+        * ) 
+            echo "Invalid argument: ${1}."
+            echo "$usage"
+            exit 1
+        ;;
+    esac
+done
+
+# Make sure all command line arguments are present.
+if [ -z "${backupDB}" ]
+then
+    logThis "backupDB is a required parameter." ERROR
+    echo "backupDB is a required parameter."
+    echo "${usage}."
+    exit 1
+fi
+# Get first four letters of dbName
+dbPrefix=`echo ${backupDB} | cut -c1-4`
+logThis "dbPrefix: ${dbPrefix}" DEBUG
+
+logThis "Attempting to figure out based on dbName." DEBUG
+case ${dbPrefix} in
+    'bfas' ) # bestfriends.org is on it's own host
+        dbHost='bfas-oldweb-bestfriendsorg.cluster-cqcl07w1qia1.us-west-1.rds.amazonaws.com'
+        secretID='bfas-oldweb-web-auroramasteruser-prod-bestfriendsorg'
+    ;;
+    * ) 
+        dbHost='bfas-oldweb-secondarysites.cluster-cqcl07w1qia1.us-west-1.rds.amazonaws.com'
+        secretID='bfas-oldweb-web-auroramasteruser-prod-secondarysites'
+    ;;
+esac
+logThis "backupDB: ${dbHost}" DEBUG
+logThis "secretID: ${secretID}" DEBUG
+
+if [ -z "${profile}" ]
+then
+    profile='eb-cli'
+fi
+logThis "profile: ${profile}" DEBUG
+
+if [ -z "${s3Profile}" ]
+then
+    s3Profile='dev'
+fi
+logThis "s3Profile: ${s3Profile}" DEBUG
+
+# If no output directory was passed in, then use the current dir
+if [ -z "${outputDir}" ]
+then
+    logThis "outputDir parameter not detected.  Using ${HOME}/dumps." INFO
+    echo "outputDir parameter not detected.  Using ${HOME}/dumps."
+    outputDir="${HOME}/dumps"   
+fi
+logThis "outputDir: ${outputDir}" DEBUG
+
+dbInfo=`aws secretsmanager get-secret-value \
+    --region us-west-1 \
+    --profile ${profile} \
+    --secret-id ${secretID} \
+    | jq --raw-output .SecretString | jq -r ."password"`
+if ! [[ "$?" -eq 0 ]]
+then
+    logThis "${dateTime} - aws secretsmanager get-secret-value returned error status ${?}." ERROR
+    exit 1
+fi
+
+dbUser=`aws secretsmanager get-secret-value \
+    --region us-west-1 \
+    --profile ${profile} \
+    --secret-id ${secretID}  \
+    | jq --raw-output .SecretString | jq -r ."username"`
+if ! [[ "$?" -eq 0 ]]
+then
+    logThis "${dateTime} - aws secretsmanager get-secret-value returned error status ${?}." ERROR
+    exit 1
+fi
+
+dbBackupFile="${dbPrefix}.sql"
+dbBackupPath="${outputDir}/${dbBackupFile}"
+logThis "dbBackupPath: ${dbBackupPath}" DEBUG
+
+sqlString="SHOW TABLES FROM \`${backupDB}\` \n \
+          WHERE \`Tables_in_${backupDB}\` \n \
+           LIKE 'search_%' \n \
+           OR \`Tables_in_${backupDB}\` LIKE 'cache%' \n \
+           OR \`Tables_in_${backupDB}\` LIKE 'advagg_%' \n \
+           OR \`Tables_in_${backupDB}\` = 'accesslog' \n \
+           OR \`Tables_in_${backupDB}\` = 'history' \n \
+           OR \`Tables_in_${backupDB}\` = 'watchdog' \n \
+           OR \`Tables_in_${backupDB}\` = 'sessions';"
+logThis "sqlstring: ${sqlString}" DEBUG
+
+ignoreTableList=`mysql \
+                    -h ${dbHost} \
+                    -u ${dbUser} \
+                    -p${dbInfo} \
+                    -Bs \
+                    --database=${backupDB} \
+                    -e "${sqlString}" 2>>${scriptLogPath}`
+logThis "ignoreTableList: ${ignoreTableList}" DEBUG
+
+ignoredTablesString=''
+for table in $ignoreTableList; do
+    ignoredTablesString+=" --ignore_table="${backupDB}"."$table
+done
+
+logThis "${ignoredTablesString}" DEBUG
+
+logThis "Beginning backup of $backupDB" INFO
+logThis "Dump structure" INFO
+start_time="$(date -u +%s)"
+
+mysqldump  ${backupDB} \
+            --host=${dbHost} \
+            --user=${dbUser} \
+            --password=${dbInfo} \
+            --single-transaction \
+            --quick \
+            --no-data \
+            --routines > ${dbBackupPath} 2>>${scriptLogPath}
+returnStatus=$?
+if [ "${returnStatus}" -ne 0 ]
+then
+    logThis "${dateTime} - mysqldump returned error status ${returnStatus}." ERROR
+    exit 1
+fi
+end_time="$(date -u +%s)"
+elapsed="$(($end_time-$start_time))"
+logThis "Dump structure Seconds elapsed: $elapsed" INFO
+
+logThis "Dump content" INFO
+start_time="$(date -u +%s)"
+mysqldump ${backupDB} \
+    --host=${dbHost} \
+    --user=${dbUser} \
+    --password=${dbInfo} \
+    --single-transaction \
+    --quick \
+    --no-create-info \
+    --skip-triggers \
+   ${ignoredTablesString}  >> ${dbBackupPath} 2>>${scriptLogPath}
+returnStatus=$?
+if [ "${returnStatus}" -ne 0 ]
+then
+    logThis "${dateTime} - mysqldump returned error status ${returnStatus}." ERROR
+    exit 1
+fi
+end_time="$(date -u +%s)"
+elapsed="$((${end_time}-${start_time}))"
+logThis "Dump content Seconds elapsed: ${elapsed}" INFO
+
+logThis "Backup of ${backupDB} complete." INFO
+
+end_time="$(date -u +%s)"
+elapsed="$(($end_time-$start_time))"
+logThis "Adding Tagging Seconds elapsed: $elapsed" INFO
+
+logThis "${appName} processing ends" INFO
+exit 0

@@ -3,7 +3,7 @@
 # Install packages
 apps=(
   ansible
-  composer
+#  composer
   coreutils
   cmake
   diff-so-fancy
@@ -24,9 +24,9 @@ apps=(
   psgrep
   python
   shellcheck
-  ssh-copy-id
+#  ssh-copy-id
   tree
-  vim
+#  vim
   wget
   wifi-password
 )

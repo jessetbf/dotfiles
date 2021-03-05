@@ -1,12 +1,16 @@
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-export PATH=/usr/local/opt/ruby/bin:$PATH
-export PATH=/usr/local/bin:/usr/local/sbin:$PATH
-# Load MAMP into path
-export PATH=/Applications/MAMP/Library/bin/:$PATH
-export PATH=/Applications/MAMP/bin/php/php7.3.9/bin:$PATH
-alias php='/Applications/MAMP/bin/php/php7.3.9/bin/php -c "/Library/Application Support/appsolute/MAMP PRO/conf/php7.3.9.ini"'
-alias pear='/Applications/MAMP/bin/php/php7.3.9/bin/pear'
-alias pecl='/Applications/MAMP/bin/php/php7.3.9/bin/pecl'
+alias php='/Applications/MAMP/bin/php/php7.3.24/bin/php -c "/Library/Application Support/appsolute/MAMP PRO/conf/php7.3.24.ini"'
+alias pear='/Applications/MAMP/bin/php/php7.3.24/bin/pear'
+alias pecl='/Applications/MAMP/bin/php/php7.3.24/bin/pecl'
+alias composer='/Applications/MAMP/bin/php/composer'
+alias python='/Applications/MAMP/Library/bin/python'
+alias perl='/Applications/MAMP/Library/bin/perl'
+alias cpan='/Applications/MAMP/Library/bin/cpan'
+alias erb='/Applications/MAMP/Library/bin/erb'
+alias gem='/Applications/MAMP/Library/bin/gem'
+alias irb='/Applications/MAMP/Library/bin/irb'
+alias rake='/Applications/MAMP/Library/bin/rake'
+alias rdoc='/Applications/MAMP/Library/bin/rdoc'
+alias ri='/Applications/MAMP/Library/bin/ri'
+alias ruby='/Applications/MAMP/Library/bin/ruby'
+alias rails='/Applications/MAMP/Library/bin/rails'
